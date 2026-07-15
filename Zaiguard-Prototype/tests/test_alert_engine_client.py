@@ -6,17 +6,11 @@ Tests for postproc/alert_engine_client.py.
 
 from unittest.mock import patch, MagicMock
 import pytest
-from core.packets import ConfirmedAlert, AlertEmbeddings, AlertMeta, SceneFeatures, ThresholdVerdict
+from core.packets import ConfirmedAlert, AlertMeta, SceneFeatures, ThresholdVerdict
 from postproc.alert_engine_client import AlertEngineClient
 
 def test_map_to_raw_event():
     client = AlertEngineClient(base_url="http://localhost:8000")
-    
-    embeddings = AlertEmbeddings(
-        appearance_embedding=[0.1] * 128,
-        spatial_embedding=[0.2] * 6,
-        temporal_embedding=[0.3] * 4
-    )
     scene = SceneFeatures(person_count=1, track_count=1)
     verdict = ThresholdVerdict(
         window_size=7,
@@ -64,7 +58,6 @@ def test_map_to_raw_event():
         zone_id="cam_01",
         clip_path="clips/test.mp4",
         snapshot_path="snapshots/test.jpg",
-        embeddings=embeddings,
         meta=meta
     )
     
@@ -90,12 +83,6 @@ def test_send_success(mock_post):
     mock_post.return_value = mock_resp
     
     client = AlertEngineClient(base_url="http://localhost:8000")
-    
-    embeddings = AlertEmbeddings(
-        appearance_embedding=[0.1] * 128,
-        spatial_embedding=[0.2] * 6,
-        temporal_embedding=[0.3] * 4
-    )
     scene = SceneFeatures(person_count=1, track_count=1)
     verdict = ThresholdVerdict(
         window_size=7,
@@ -143,7 +130,6 @@ def test_send_success(mock_post):
         zone_id="cam_01",
         clip_path="clips/test.mp4",
         snapshot_path="snapshots/test.jpg",
-        embeddings=embeddings,
         meta=meta
     )
     

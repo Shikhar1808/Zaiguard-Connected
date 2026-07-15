@@ -96,7 +96,6 @@ class Deduplicator(threading.Thread):
                 zone_id=c.zone_id,
                 clip_path=None,       # set by PreviewRenderer after saving
                 snapshot_path=None,   # set by PreviewRenderer after saving
-                embeddings=c.embeddings,
                 meta=c.meta,
                 extra=c.extra,
             )

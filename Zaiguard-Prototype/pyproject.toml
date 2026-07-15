@@ -23,7 +23,6 @@ dependencies = [
     "onnxruntime-gpu>=1.24.3",
     "onnx>=1.22.0",
     "onnxslim>=0.1.94",
-    "torchreid>=0.2.5",
 ]
 
 [project.optional-dependencies]

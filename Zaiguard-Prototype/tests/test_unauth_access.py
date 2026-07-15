@@ -54,7 +54,6 @@ def make_track(track_id: int = 1, class_label: str = "person") -> TrackBox:
         centroid_norm=[0.055, 0.105],
         area_px=90 * 190,
         aspect_ratio=round(90 / 190, 3),
-        appearance_embedding=[],
     )
 
 
@@ -244,19 +243,12 @@ class TestUnauthAccessClassifier:
             alerts2 = classify_n(clf2, make_packet(), 3)
         assert len(alerts2) == 1
 
-    def test_v13_enriched_embeddings(self):
-        """v1.3: spatial=6-d, temporal=4-d, track_duration, severity populated."""
+    def test_v13_metadata(self):
+        """v1.3: track_duration, severity populated."""
         clf = self._make_clf(allowed_windows=[], min_frames=3, score=0.6)
         with patch_hour(2):
             alerts = classify_n(clf, make_packet(), 3)
         assert len(alerts) == 1
-        emb = alerts[0].embeddings
-        # spatial: [cx_norm, cy_norm, w_norm, h_norm, area_ratio, aspect_ratio]
-        assert len(emb.spatial_embedding) == 6
-        assert all(isinstance(v, float) for v in emb.spatial_embedding)
-        # temporal: [sin(hour), cos(hour), sin(dow), cos(dow)]
-        assert len(emb.temporal_embedding) == 4
-        assert all(isinstance(v, float) for v in emb.temporal_embedding)
         # track duration should be non-negative
         assert alerts[0].meta.track_duration_s >= 0.0
         assert alerts[0].meta.track_first_seen_frame >= 0

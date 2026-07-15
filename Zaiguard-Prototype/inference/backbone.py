@@ -39,7 +39,6 @@ COCO_LABELS: dict[int, str] = {
     0: "person", 1: "bicycle", 2: "car", 3: "motorcycle",
     5: "bus", 7: "truck", 16: "dog", 17: "cat",
 }
-_APPEARANCE_DIM = 128
 
 try:
     import onnxruntime as ort
@@ -137,13 +136,9 @@ def _to_track_boxes(
     det: sv.Detections,
     W: int,
     H: int,
-    embeddings: list[list[float]] | None = None,
 ) -> list[TrackBox]:
     """
-    embeddings, if provided, must be the same length and order as det —
-    i.e. one appearance_embedding per detection, already computed by
-    FeatureExtractor.extract_batch(). Falls back to zero vectors if not
-    provided (keeps this function usable without the extractor wired).
+    Convert supervision Detections object to a list of TrackBox objects.
     """
     if det.tracker_id is None or len(det) == 0:
         return []
@@ -156,7 +151,6 @@ def _to_track_boxes(
         w_b = max(x2 - x1, 1)
         h_b = max(y2 - y1, 1)
         cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-        emb = embeddings[i] if embeddings is not None else [0.0] * _APPEARANCE_DIM
         result.append(TrackBox(
             track_id=tid,
             bbox=[x1, y1, x2, y2],
@@ -168,7 +162,6 @@ def _to_track_boxes(
             centroid_norm=[round(cx/W, 4), round(cy/H, 4)],
             area_px=w_b * h_b,
             aspect_ratio=round(w_b / h_b, 3),
-            appearance_embedding=emb,
         ))
     return result
 
@@ -259,10 +252,7 @@ class BackboneInference(threading.Thread):
             else:
                 det = sv.Detections.empty()
 
-            # One embedding per surviving tracked detection.
-            # Embedding creation feature disabled (retains zero vectors default).
-            embeddings = None
-            tracks = _to_track_boxes(det, W, H, embeddings)
+            tracks = _to_track_boxes(det, W, H)
             ms     = (time.monotonic() - t0) * 1000
             log.debug("[{}] {:.1f}ms  {} tracks", cam_id, ms, len(tracks))
 

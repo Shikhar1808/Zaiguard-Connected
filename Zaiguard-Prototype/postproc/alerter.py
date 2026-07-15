@@ -97,7 +97,6 @@ class Alerter(threading.Thread):
                 "crowd_density": alert.meta.scene.crowd_density,
             },
             "track_duration_s": alert.meta.track_duration_s,
-            "embedding_dim": len(alert.embeddings.appearance_embedding),
         }
         # Part 2 extensibility fields — only include when non-empty
         if alert.pipeline_id:

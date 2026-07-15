@@ -19,7 +19,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-SCHEMA_VERSION = "1.3.0"
+SCHEMA_VERSION = "1.4.0"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -50,7 +50,6 @@ class TrackBox(BaseModel):
     centroid_norm: list[float]  # [cx, cy] normalised 0–1
     area_px: int
     aspect_ratio: float
-    appearance_embedding: list[float] = Field(default_factory=list)   # 128-d stub
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -99,23 +98,6 @@ class ThresholdVerdict(BaseModel):
     camera_restricted: bool
     # Human-readable: which schedule window(s) apply to this camera
     schedule_summary: str
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Embeddings — separate block for clean Qdrant upsert later
-#
-# spatial_embedding:     6-d  [cx_norm, cy_norm, w_norm, h_norm, area_ratio, aspect_ratio]
-#                        Encodes position + size + shape for spatial similarity.
-# temporal_embedding:    4-d  [sin(hour), cos(hour), sin(dow), cos(dow)]
-#                        Cyclical time encoding for "similar time of day/week" queries.
-# trajectory_embedding:  reserved for Part 2 (velocity/direction history).
-# ─────────────────────────────────────────────────────────────────────────────
-
-class AlertEmbeddings(BaseModel):
-    appearance_embedding: list[float] = Field(default_factory=list)   # re-ID model dim
-    spatial_embedding: list[float] = Field(default_factory=list)      # 6-d: pos + size + shape
-    temporal_embedding: list[float] = Field(default_factory=list)     # 4-d: cyclical hour + dow
-    trajectory_embedding: list[float] = Field(default_factory=list)   # future (Part 2)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -178,7 +160,6 @@ class AlertCandidate(BaseModel):
     track_id: int
     confidence: float
     zone_id: str | None = None      # None for camera-level alerts; kept for future zone classifiers
-    embeddings: AlertEmbeddings
     meta: AlertMeta
     extra: dict[str, Any] = Field(default_factory=dict)   # extensible bag for Part 2 classifiers
     _frame: Any = None              # internal — stripped before writing to disk
@@ -201,6 +182,5 @@ class ConfirmedAlert(BaseModel):
     zone_id: str | None = None
     clip_path: str | None = None
     snapshot_path: str | None = None      # annotated JPEG snapshot at moment of firing
-    embeddings: AlertEmbeddings
     meta: AlertMeta
     extra: dict[str, Any] = Field(default_factory=dict)   # extensible bag for Part 2 classifiers

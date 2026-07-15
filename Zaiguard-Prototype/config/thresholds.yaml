@@ -14,19 +14,6 @@ thresholds:
   backbone_conf: 0.40       # minimum detection confidence to keep a box
   backbone_nms_iou: 0.45
 
-  # ── feature extractor (appearance embeddings for re-ID) ────────────────────
-  # Optional. Produces a real 128-d embedding per tracked person, used for
-  # cross-camera re-identification once storage/qdrant.py is wired up.
-  # If the model file below doesn't exist, every track silently gets a
-  # zero vector — exactly the previous placeholder behaviour. No crash,
-  # no pipeline change needed either way.
-  #
-  # Get a model: export any ONNX person re-ID network (e.g. torchreid's
-  # osnet_x0_25) and point feature_extractor_model at the resulting file.
-  feature_extractor_model: weights/reid.onnx
-  appearance_embedding_dim: 128
-  feature_extractor_input_size: [128, 256]   # [W, H] — standard re-ID crop size
-
   # ── motion gate ────────────────────────────────────────────────────────────
   motion_threshold: 1.5     # mean pixel diff — below this, frame is skipped
   motion_sample_fps: 5      # max fps pushed from sampler → backbone

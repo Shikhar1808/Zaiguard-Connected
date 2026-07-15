@@ -120,14 +120,6 @@ class ThresholdConfig(BaseModel):
     backbone_conf: float = Field(default=0.40, ge=0.0, le=1.0)
     backbone_nms_iou: float = Field(default=0.45, ge=0.0, le=1.0)
 
-    # ── feature extractor (appearance embeddings for re-ID) ───────────────────
-    # Optional. If feature_extractor_model points at a file that doesn't
-    # exist, every track gets a zero vector — same as before this was wired.
-    # See inference/feature_extractor.py for model requirements.
-    feature_extractor_model: str = "weights/reid.onnx"
-    appearance_embedding_dim: int = Field(default=128, ge=1)
-    feature_extractor_input_size: list[int] = Field(default=[128, 256])  # [W, H]
-
     # ── motion gate ───────────────────────────────────────────────────────────
     motion_threshold: float = Field(default=4.0, ge=0.0)
     motion_sample_fps: int = Field(default=5, ge=1, le=60)
@@ -157,13 +149,6 @@ class ThresholdConfig(BaseModel):
     def input_size_valid(cls, v: list) -> list:
         if len(v) != 2 or not all(isinstance(x, int) and x > 0 for x in v):
             raise ValueError("backbone_input_size must be [W, H] positive ints")
-        return v
-
-    @field_validator("feature_extractor_input_size")
-    @classmethod
-    def fe_input_size_valid(cls, v: list) -> list:
-        if len(v) != 2 or not all(isinstance(x, int) and x > 0 for x in v):
-            raise ValueError("feature_extractor_input_size must be [W, H] positive ints")
         return v
 
 

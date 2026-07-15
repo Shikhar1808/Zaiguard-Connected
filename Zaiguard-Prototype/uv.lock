@@ -1666,7 +1666,6 @@ dependencies = [
     { name = "pyyaml" },
     { name = "requests" },
     { name = "supervision" },
-    { name = "torchreid" },
     { name = "ultralytics" },
     { name = "uvicorn" },
 ]
@@ -1703,7 +1702,6 @@ requires-dist = [
     { name = "requests", specifier = ">=2.31" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12" },
     { name = "supervision", specifier = ">=0.26.0" },
-    { name = "torchreid", specifier = ">=0.2.5" },
     { name = "ultralytics", specifier = ">=8.3" },
     { name = "uvicorn", specifier = ">=0.35" },
 ]
@@ -1790,12 +1788,6 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/de/f0/80026028b603c4650ff270fc3785bdef4bd6738765a9cc5a0f5a637d65a2/torch-2.12.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:4b4f64c2c2b11f7510d93dd6412b87025ff6eddd6bb61c3b5a3d892ea20c4756", size = 532261691, upload-time = "2026-05-13T14:52:54.453Z" },
     { url = "https://files.pythonhosted.org/packages/b9/c2/64b06cbb7830fb3cd9be13e1158b31a3f36b68e6a209105ee3c9d9480be0/torch-2.12.0-cp312-cp312-win_amd64.whl", hash = "sha256:8b958caff4a14d3a3b0b2dfc6a378f64dda9728a9dad28c08a0db9ce4dafb549", size = 122988114, upload-time = "2026-05-13T14:54:42.153Z" },
 ]
-
-[[package]]
-name = "torchreid"
-version = "0.2.5"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/62/9a/d3d8da1d1a8a189b2b2d6f191b21cd7fbdb91a587a9c992bcd9666895284/torchreid-0.2.5.tar.gz", hash = "sha256:bc1055c6fb8444968798708dd13fdad00148e9d7cf3cb18cf52f4b949857fe08", size = 92656, upload-time = "2022-10-16T12:33:29.693Z" }
 
 [[package]]
 name = "torchvision"
