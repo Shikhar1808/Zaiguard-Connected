@@ -1,0 +1,7 @@
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]
+site-package-path = [
+    "z_env/Lib/site-packages",
+]

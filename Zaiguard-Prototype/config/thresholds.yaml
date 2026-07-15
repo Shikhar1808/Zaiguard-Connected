@@ -1,0 +1,101 @@
+# config/thresholds.yaml
+
+app:
+  queue_maxsize: 32
+  log_level: INFO
+  alert_output_dir: outputs
+  save_clips: true
+  retention_days: 30            # auto-delete clips/alerts older than N days (0 = disabled)
+
+thresholds:
+  # ── backbone ───────────────────────────────────────────────────────────────
+  backbone_model: models/onnx/yolov8n.onnx
+  backbone_input_size: [640, 640]
+  backbone_conf: 0.40       # minimum detection confidence to keep a box
+  backbone_nms_iou: 0.45
+
+  # ── feature extractor (appearance embeddings for re-ID) ────────────────────
+  # Optional. Produces a real 128-d embedding per tracked person, used for
+  # cross-camera re-identification once storage/qdrant.py is wired up.
+  # If the model file below doesn't exist, every track silently gets a
+  # zero vector — exactly the previous placeholder behaviour. No crash,
+  # no pipeline change needed either way.
+  #
+  # Get a model: export any ONNX person re-ID network (e.g. torchreid's
+  # osnet_x0_25) and point feature_extractor_model at the resulting file.
+  feature_extractor_model: weights/reid.onnx
+  appearance_embedding_dim: 128
+  feature_extractor_input_size: [128, 256]   # [W, H] — standard re-ID crop size
+
+  # ── motion gate ────────────────────────────────────────────────────────────
+  motion_threshold: 1.5     # mean pixel diff — below this, frame is skipped
+  motion_sample_fps: 5      # max fps pushed from sampler → backbone
+
+  # ── unauth_access ──────────────────────────────────────────────────────────
+
+  # Sliding window: how many recent frames the score is computed over.
+  # Larger = less sensitive to single-frame noise, slower to react.
+  unauth_min_frames: 7
+
+  # Minimum fraction of window frames that must be violations to fire.
+  # 0.60 with window=7 means 5 of the last 7 frames must show a person
+  # on a restricted camera.
+  unauth_score: 0.60
+
+  # Per-track cooldown: seconds before the same track ID can fire again.
+  # Prevents one lingering person generating hundreds of alerts.
+  unauth_cooldown_s: 30.0
+
+  # Global per-camera cooldown: seconds before the same camera fires again,
+  # regardless of track ID. Handles re-ID failures and rapid re-entries.
+  unauth_global_cooldown_s: 15.0
+
+  # Second confidence gate in the deduplicator (independent of classifier score).
+  # Raise to require higher certainty before persisting to disk / storage.
+  unauth_min_confidence: 0.50
+
+  # ── clip / snapshot settings ─────────────────────────────────────────────────
+  clip_fps: 5                    # frames saved per second in clip
+  clip_pre_s: 3                  # seconds of pre-alert buffer kept per camera
+  clip_post_s: 2                 # seconds saved after alert fires
+  clip_format: mp4               # "mp4" (compressed, ~90% smaller) or "jpeg_seq"
+  clip_jpeg_quality: 70          # JPEG quality for clip frames (if jpeg_seq)
+  snapshot_jpeg_quality: 80      # JPEG quality for alert snapshot image
+
+# ── Extensions ──────────────────────────────────────────────────────────────
+# Active integrations and Part 2 stubs (disabled by default).
+
+extensions:
+  alert_engine:
+    enabled: true
+    url: "http://localhost:8000"
+    timeout_s: 5
+
+#   classifiers:
+#     violence:
+#       enabled: false
+#       model: weights/violence.onnx
+#     dog_attack:
+#       enabled: false
+#       model: weights/dog_attack.onnx
+#     road_accident:
+#       enabled: false
+#       model: weights/road_accident.onnx
+#   storage:
+#     timescaledb:
+#       enabled: false
+#       dsn: "postgresql://user:pass@localhost:5432/zaiguard"
+#     qdrant:
+#       enabled: false
+#       url: "http://localhost:6333"
+#       collection: alerts
+#     redis:
+#       enabled: false
+#       url: "redis://localhost:6379"
+#   federated:
+#     enabled: false
+#     server_url: ""
+#   dashboard:
+#     enabled: false
+#     host: "0.0.0.0"
+#     port: 8000

@@ -1,0 +1,55 @@
+# config/cameras.yaml
+#
+# Source types supported:
+#   rtsp://user:pass@192.168.1.x/stream   — RTSP camera
+#   /path/to/video.mp4                    — local video file (for testing)
+#   http://192.168.1.x:8080/video         — HTTP/MJPEG stream
+#   device:0                              — local webcam index 0
+#
+# If a source fails, the pipeline tries the fallback chain automatically:
+#   configured source → recordings/ folder → device scan (indices 0-7)
+#
+# Minimum 1 enabled camera is required — the pipeline refuses to start
+# with zero. There is NO upper limit on the number of cameras; add as
+# many entries as you have feeds for. Each gets its own reader thread
+# and its own preview window.
+#
+# width / height must match each camera's actual stream resolution —
+# used for bbox_norm / centroid_norm calculations downstream.
+
+cameras:
+  - camera_id: cam_01
+    label: "Front entrance"
+    source: "rtsp://admin:password@192.168.1.100/stream1"
+    enabled: true
+    fps_cap: 25
+    width: 1920
+    height: 1080
+
+  - camera_id: cam_02
+    label: "Server room"
+    source: "rtsp://admin:password@192.168.1.101/stream1"
+    enabled: true
+    fps_cap: 25
+    width: 1920
+    height: 1080
+
+  - camera_id: cam_03
+    label: "Parking lot"
+    source: "rtsp://admin:password@192.168.1.102/stream1"
+    enabled: true
+    fps_cap: 25
+    width: 1280
+    height: 720
+
+  # Add as many more as needed — no limit. Set enabled: false to keep a
+  # camera in the config without starting a reader thread for it.
+
+  # Useful during development — point at a test video instead of live RTSP
+  # - camera_id: cam_test
+  #   label: "Test video"
+  #   source: "recordings/test_clip.mp4"
+  #   enabled: true
+  #   fps_cap: 30
+  #   width: 1280
+  #   height: 720

@@ -1,0 +1,141 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+.installed.cfg
+MANIFEST
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ── ML models & weights ───────────────────────────────────────────────────────
+*.pt
+*.pth
+*.onnx
+*.trt
+*.engine
+*.pb
+*.h5
+*.caffemodel
+*.prototxt
+*.weights
+*.pkl
+*.joblib
+models/
+weights/
+checkpoints/
+
+# ── TensorRT cache ────────────────────────────────────────────────────────────
+*.trt.cache
+*.plan
+trt_cache/
+
+# ── CUDA / GPU profiling ──────────────────────────────────────────────────────
+*.nvvp
+*.qdrep
+*.nsys-rep
+*.sqlite
+profiling/
+
+# ── Video & image data ────────────────────────────────────────────────────────
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.h264
+*.h265
+*.ts
+clips/
+recordings/
+frames/
+snapshots/
+
+# ── Alert output / event clips ────────────────────────────────────────────────
+alerts/
+events/
+outputs/
+tmp_frames/
+
+# ── Config secrets (keep examples, ignore actuals) ───────────────────────────
+# config/cameras.yaml
+config/secrets.yaml
+*.secret.yaml
+.env.*
+!.env.example
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+*.log.*
+
+# ── Database files ────────────────────────────────────────────────────────────
+*.db
+*.sqlite3
+*.sql.gz
+pgdata/
+qdrant_storage/
+
+# ── Redis dump ────────────────────────────────────────────────────────────────
+dump.rdb
+redis_data/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Testing & coverage ────────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# ── Type checking ─────────────────────────────────────────────────────────────
+.mypy_cache/
+.pytype/
+.pyre/
+
+# ── IDEs ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ── Docker ────────────────────────────────────────────────────────────────────
+docker-compose.override.yml
+
+# ── Federated learning artifacts ─────────────────────────────────────────────
+fl_rounds/
+aggregated_weights/
+client_updates/
+
+# ── Byte-compiled zone masks / calibration data ───────────────────────────────
+*.npy
+*.npz
+calibration/
+zone_masks/
+
+.qodo

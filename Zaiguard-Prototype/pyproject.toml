@@ -1,0 +1,55 @@
+[project]
+name = "surveillance-system"
+version = "0.1.0"
+description = "Multi-camera event detection pipeline"
+requires-python = ">=3.10,<3.13"
+
+dependencies = [
+    "opencv-python>=4.9",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    # Inference
+    "onnxruntime>=1.17",
+    # Detection + Tracking
+    "ultralytics>=8.3",
+    "supervision>=0.26.0",
+    # API / Dashboard
+    "fastapi>=0.115",
+    "uvicorn>=0.35",
+    # Utilities
+    "pydantic>=2.11",
+    "loguru>=0.7",
+    "requests>=2.31",
+    "onnxruntime-gpu>=1.24.3",
+    "onnx>=1.22.0",
+    "onnxslim>=0.1.94",
+    "torchreid>=0.2.5",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-timeout>=2.3",
+    "black>=25.0",
+    "ruff>=0.12",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "ingestion",
+    "inference",
+    "classifiers",
+    "postproc",
+    "storage",
+    "core",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.3",
+    "ultralytics>=8.4.61",
+]

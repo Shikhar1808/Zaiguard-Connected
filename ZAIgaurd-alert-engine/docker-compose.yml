@@ -1,0 +1,78 @@
+version: "3.9"
+
+# ZaiGuard Alert Engine — Local Development Services
+# Run with: docker compose up -d
+# Stop with: docker compose down
+# Stop + wipe data: docker compose down -v
+
+services:
+
+  # ─────────────────────────────────────────────
+  # TimescaleDB (PostgreSQL + time-series extensions)
+  # Owns: suppression_rules, threshold_config,
+  #        tier_config, alert_log (hypertable)
+  # ─────────────────────────────────────────────
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    container_name: zaiguard_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: zaiguard
+      POSTGRES_PASSWORD: zaiguard_dev
+      POSTGRES_DB: zaiguard
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # SQL init scripts run once on first startup (alphabetical order)
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zaiguard -d zaiguard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # Redis
+  # Owns: burst dedup TTL keys, running confidence
+  #        values, (optionally) alert outbox queue
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: zaiguard_redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes   # persist to disk across restarts
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # Qdrant
+  # Owns: dismissed_alerts collection (vectors of
+  #        semantic embeddings + metadata payload)
+  # ─────────────────────────────────────────────
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: zaiguard_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 5 bash -c 'cat < /dev/null > /dev/tcp/localhost/6333' && echo ok || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+  redis_data:
+  qdrant_data:

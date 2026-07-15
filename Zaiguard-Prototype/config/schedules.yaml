@@ -1,0 +1,82 @@
+# config/schedules.yaml
+#
+# Defines when each camera is in "restricted" mode.
+# Any detection of a person outside the allowed windows fires an unauth_access alert.
+#
+# No polygons. No zone drawing. The whole camera FOV is the detection area.
+#
+# allowed windows
+# ───────────────
+# Each entry under `allowed` is one contiguous permitted window.
+# Multiple windows = OR logic (access allowed if inside ANY window).
+#
+#   start / end : hour of day, 0–23, 24-hour clock
+#   label       : optional — shown in alert metadata for human context
+#
+# Overnight windows work naturally:
+#   start: 22, end: 6   →  allowed 22:00–06:00 (wraps midnight)
+#
+# Edge cases
+# ──────────
+# No allowed windows at all  →  always restricted (every detection fires)
+# restricted: false           →  camera is completely ignored by classifier
+# Camera not listed here      →  treated as unrestricted (no alerts)
+#
+# Day-of-week filtering
+# ─────────────────────
+# Not yet in the model — handle it by tightening allowed hours instead.
+# Full weekday/weekend support is a planned ThresholdConfig extension.
+
+# schedules:
+
+#   - camera_id: cam_01
+#     label: Front entrance
+#     restricted: true
+#     allowed:
+#       - start: 8
+#         end: 20
+#         label: Business hours
+
+#   - camera_id: cam_02
+#     label: Server room
+#     restricted: true
+#     allowed:
+#       - start: 9
+#         end: 18
+#         label: Work hours
+
+#   - camera_id: cam_03
+#     label: Parking lot
+#     restricted: true
+#     allowed:
+#       - start: 7
+#         end: 22
+#         label: Daytime
+
+  # Example: always restricted — fires on ANY detection, any time of day
+  # Useful for a vault or secure storage room nobody should ever enter
+  # - camera_id: cam_vault
+  #   label: Vault
+  #   restricted: true
+  #   allowed: []   # empty = never allowed
+
+  # Example: two separate windows (lunch break restriction etc.)
+  # - camera_id: cam_lab
+  #   label: Lab
+  #   restricted: true
+  #   allowed:
+  #     - start: 8
+  #       end: 12
+  #       label: Morning shift
+  #     - start: 13
+  #       end: 18
+  #       label: Afternoon shift
+
+schedules:
+  - camera_id: cam_01
+    label: Webcam test
+    restricted: true
+    allowed:
+      - start: 0
+        end: 0
+        label: Never allowed (testing)

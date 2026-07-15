@@ -1,0 +1,57 @@
+# ============================================================
+# ZaiGuard Alert Engine — Python Dependencies
+# Install with: pip install -r requirements.txt
+# ============================================================
+
+# ─────────────────────────────────────────────────────────────
+# Web framework
+# ─────────────────────────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.29.0       # ASGI server to run FastAPI
+
+# ─────────────────────────────────────────────────────────────
+# Data validation and serialization
+# Pydantic v2 — used for all schemas (AlertEvent, DashboardAlert, etc.)
+# ─────────────────────────────────────────────────────────────
+pydantic==2.7.1
+pydantic-settings==2.2.1        # loads .env into Settings class
+
+# ─────────────────────────────────────────────────────────────
+# Database — PostgreSQL / TimescaleDB
+# ─────────────────────────────────────────────────────────────
+sqlalchemy==2.0.30              # ORM + core, v2 is async-native
+asyncpg==0.29.0                 # async Postgres driver (used by SQLAlchemy)
+alembic==1.13.1                 # schema migrations (future-proofing)
+
+# ─────────────────────────────────────────────────────────────
+# Redis — burst deduplication (Layer 3)
+# ─────────────────────────────────────────────────────────────
+redis==5.0.4                    # redis-py with async support
+fakeredis==2.23.1               # in-memory Redis mock for unit tests
+
+# ─────────────────────────────────────────────────────────────
+# Qdrant — semantic suppression (Layer 4B)
+# ─────────────────────────────────────────────────────────────
+qdrant-client==1.9.1
+
+# ─────────────────────────────────────────────────────────────
+# Embeddings — sentence transformer (Layer 4B)
+# all-MiniLM-L6-v2 is downloaded automatically on first use
+# ─────────────────────────────────────────────────────────────
+sentence-transformers==3.0.1
+torch==2.3.0                    # CPU-only is fine; sentence-transformers
+                                 # will use GPU automatically if available
+
+# ─────────────────────────────────────────────────────────────
+# Utilities
+# ─────────────────────────────────────────────────────────────
+python-dotenv==1.0.1            # .env file loading
+structlog==24.1.0               # structured logging (JSON output in prod)
+tenacity==8.3.0                 # retry logic for external service calls
+
+# ─────────────────────────────────────────────────────────────
+# Testing
+# ─────────────────────────────────────────────────────────────
+pytest==8.2.0
+pytest-asyncio==0.23.6          # async test support
+httpx==0.27.0                   # async HTTP client for FastAPI test client

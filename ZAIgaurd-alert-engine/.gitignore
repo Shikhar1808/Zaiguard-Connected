@@ -1,0 +1,41 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+z_env/
+venv/
+env/
+ENV/
+.venv/
+
+# Environment and sensitive configuration
+.env
+.env.*
+!.env.example
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Model weights and cached transformer artifacts
+.model_cache/
+
+# IDEs and editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+.DS_Store
+
+# Temporary / Scratch files
+test_localsystem.txt
+
+# Application logs
+logs/
