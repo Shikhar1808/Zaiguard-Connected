@@ -1,0 +1,40 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "test"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+license = {file = "LICENSE"}
+dependencies = [
+    "flwr>=1.32.0",
+    # "flwr[simulation]>=1.28.0",
+    # "flwr-datasets[vision]>=0.6.0",
+    "matplotlib>=3.11.0",
+    "numpy>=2.5.0",
+    "torch>=2.12.1",
+    "torchvision>=0.27.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.flwr.app]
+publisher = "shikhar"
+# fab-format-version = 1
+# flwr-version-target = "1.31.0"
+
+[tool.flwr.app.components]
+serverapp = "src.fl.zaiguard_fedprox_demo.server_app:app"
+clientapp = "src.fl.zaiguard_fedprox_demo.client_app:app"
+
+[tool.flwr.app.config]
+num-server-rounds = 5
+fraction-evaluate = 1.0
+local-epochs = 10
+learning-rate = 0.3
+batch-size = 32
+save-model = false
