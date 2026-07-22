@@ -1,0 +1,44 @@
+# Multi-Camera Test Stack
+#
+# Starts MediaMTX (an RTSP relay server) to simulate multiple IP cameras
+# locally by re-publishing video files as RTSP streams.
+#
+# Usage:
+#   1. Put test videos in Zaiguard-Prototype/recordings/
+#      (e.g., entrance.mp4, server_room.mp4, parking.mp4)
+#   2. docker compose -f tools/docker-compose.streams.yaml up -d
+#   3. Streams become available at:
+#        rtsp://localhost:8554/cam_01
+#        rtsp://localhost:8554/cam_02
+#        rtsp://localhost:8554/cam_03
+#   4. Update config/cameras.yaml to point at these URLs
+#   5. uv run main.py
+#
+# To add a phone camera (Android IP Webcam / iOS RTSP Camera Server):
+#   - Start the app on your phone (same Wi-Fi network)
+#   - Add a proxy path in mediamtx.yml or point cameras.yaml directly
+#     at the phone's URL, e.g.:
+#       rtsp://192.168.1.42:8080/h264     (Android IP Webcam)
+#       rtsp://192.168.1.42:8554/live     (iOS RTSP Camera Server)
+#
+# Ports:
+#   8554  — RTSP
+#   8888  — WebRTC (browser preview)
+#   8889  — HLS    (browser preview)
+#   9997  — API    (status, metrics)
+
+services:
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: zaiguard-mediamtx
+    restart: unless-stopped
+    ports:
+      - "8554:8554"     # RTSP
+      - "8888:8888"     # WebRTC
+      - "8889:8889"     # HLS
+      - "9997:9997"     # API
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+      - ../../recordings:/recordings:ro
+    environment:
+      - MTX_PROTOCOLS=tcp

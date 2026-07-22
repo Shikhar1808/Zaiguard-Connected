@@ -13,6 +13,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any
+import os
 
 import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -218,11 +219,41 @@ class AppConfig(BaseModel):
 # Loader
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _load_env_file(base_dir: Path) -> None:
+    """Load key-value pairs from .env file into os.environ if present."""
+    env_file = base_dir / ".env"
+    if not env_file.exists():
+        env_file = base_dir.parent / ".env"
+    if env_file.exists():
+        with open(env_file) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#") and "=" in line:
+                    k, v = line.split("=", 1)
+                    k, v = k.strip(), v.strip().strip("'\"")
+                    if k not in os.environ:
+                        os.environ[k] = v
+
+
+def _expand_env_vars(content: str) -> str:
+    """Expand ${VAR_NAME} or ${VAR_NAME:default_value} in YAML text."""
+    import re
+    pattern = re.compile(r"\$\{([A-Za-z0-9_]+)(?::([^}]*))?\}")
+    def replace(match):
+        var_name = match.group(1)
+        default_val = match.group(2) if match.group(2) is not None else ""
+        return os.environ.get(var_name, default_val)
+    return pattern.sub(replace, content)
+
+
 def _load_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         return {}
-    with open(path) as f:
-        return yaml.safe_load(f) or {}
+    _load_env_file(path.parent)
+    with open(path, encoding="utf-8") as f:
+        content = f.read()
+    expanded = _expand_env_vars(content)
+    return yaml.safe_load(expanded) or {}
 
 
 def load_config(config_dir: str | Path = "config") -> AppConfig:

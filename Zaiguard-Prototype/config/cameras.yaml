@@ -1,45 +1,81 @@
-# config/cameras.yaml  — DO NOT COMMIT (gitignored)
+# config/cameras.multicam.yaml
 #
-# Source types supported (fallback chain tries them in this priority order):
-#   rtsp://user:pass@192.168.1.x/stream   RTSP camera
-#   /path/to/video.mp4                    local video file (testing)
-#   http://192.168.1.x:8080/video         HTTP/MJPEG stream
-#   device:0                              local webcam, index 0
+# Multi-camera test config — 3 cameras via MediaMTX RTSP relay.
 #
-# width/height MUST match the camera's actual stream resolution —
-# used for bbox_norm / centroid_norm calculations downstream.
-
-# cameras:
-#   - camera_id: cam_01
-#     label: Webcam test
-#     source: device:0
-#     enabled: true
-#     fps_cap: 25
-#     width: 1280
-#     height: 720
+# Prerequisites:
+#   1. Place test videos in recordings/:
+#        recordings/entrance.mp4
+#        recordings/server_room.mp4
+#        recordings/parking.mp4
+#   2. Start MediaMTX:
+#        docker compose -f tools/docker-compose.streams.yaml up -d
+#   3. Copy this file over cameras.yaml (or symlink):
+#        copy config\cameras.multicam.yaml config\cameras.yaml
+#
+# To add a phone camera:
+#   - Start IP Webcam (Android) or RTSP Camera Server (iOS) on your phone
+#   - Uncomment the phone_01 entry below and set the IP address
+#   - The phone and your PC must be on the same Wi-Fi network
+#
+# To mix phone + simulated:
+#   - Keep cam_01/cam_02 pointing at MediaMTX (video files)
+#   - Set cam_03 to your phone's RTSP URL directly
 
 cameras:
+  # ── Laptop Camera ──────────────────────────────────────────────────────────
   - camera_id: cam_01
-    label: "Front entrance"
-    # source: "rtsp://admin:password@192.168.1.100/stream1"
-    source: "device:0"
+    label: "Laptop Camera"
+    source: "${CAM_01_SOURCE:device:0}"
     enabled: true
-    fps_cap: 25
-    width: 1920
-    height: 1080
-
-  - camera_id: cam_02
-    label: "Server room"
-    source: "rtsp://admin:password@192.168.1.101/stream1"
-    enabled: false
-    fps_cap: 25
-    width: 1920
-    height: 1080
-
-  - camera_id: cam_03
-    label: "Parking lot"
-    source: "rtsp://admin:password@192.168.1.102/stream1"
-    enabled: false
     fps_cap: 25
     width: 1280
     height: 720
+
+  # ── Local Video Loops ──────────────────────────────────────────────────────
+  # - camera_id: cam_02
+  #   label: "Server room"
+  #   source: "${CAM_02_SOURCE:recordings/server_room.mp4}"
+  #   enabled: true
+  #   fps_cap: 25
+  #   width: 1920
+  #   height: 1080
+
+  # - camera_id: cam_03
+  #   label: "Parking lot"
+  #   source: "${CAM_03_SOURCE:recordings/parking.mp4}"
+  #   enabled: true
+  #   fps_cap: 25
+  #   width: 1280
+  #   height: 720
+
+  # ── Phone Camera ───────────────────────────────────────────────────────────
+  - camera_id: phone_01
+    label: "Phone camera"
+    source: "${PHONE_CAM_SOURCE:http://ip-port/video}"
+    enabled: true
+    fps_cap: 15
+    width: 1280
+    height: 720
+
+  # - camera_id: phone_02
+  #   label: "Phone camera (iOS)"
+  #   source: "rtsp://192.168.1.43:8554/live"     # RTSP Camera Server default
+  #   enabled: true
+  #   fps_cap: 15
+  #   width: 1280
+  #   height: 720
+
+  # ── Real IP Camera (direct RTSP, no MediaMTX proxy) ────────────────────────
+  # Common RTSP URL patterns:
+  #   Hikvision:  rtsp://admin:pass@IP:554/Streaming/Channels/101
+  #   Dahua:      rtsp://admin:pass@IP:554/cam/realmonitor?channel=1&subtype=0
+  #   Reolink:    rtsp://admin:pass@IP:554/h264Preview_01_main
+  #   Axis:       rtsp://root:pass@IP/axis-media/media.amp
+  #
+  # - camera_id: real_01
+  #   label: "Office entrance"
+  #   source: "rtsp://admin:password@192.168.1.100:554/Streaming/Channels/101"
+  #   enabled: true
+  #   fps_cap: 25
+  #   width: 1920
+  #   height: 1080

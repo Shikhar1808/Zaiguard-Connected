@@ -1,0 +1,94 @@
+# MediaMTX Configuration for Zaiguard Multi-Camera Testing
+#
+# Each path under `paths:` becomes an RTSP endpoint at:
+#   rtsp://localhost:8554/<path_name>
+#
+# Source types:
+#   - "publisher"     → waits for an external push (phone app, ffmpeg, OBS)
+#   - "rtsp://..."    → proxies a real IP camera's RTSP feed
+#   - "rtsps://..."   → proxies with TLS
+#
+# For video files, we use ffmpeg as the source command.
+# The `runOnReady` / `source` fields control how the stream is populated.
+
+###############################################################################
+# Global settings
+###############################################################################
+
+# Protocols to use for RTSP connections
+protocols: [tcp]
+
+# API for checking stream status
+api: yes
+apiAddress: :9997
+
+# WebRTC for browser-based preview (optional)
+webrtc: yes
+webrtcAddress: :8888
+
+# HLS for browser-based preview (optional)
+hls: yes
+hlsAddress: :8889
+
+###############################################################################
+# Stream paths
+###############################################################################
+
+paths:
+  # ─── Simulated Camera 1 — loops a video file as RTSP ─────────────────────
+  # Drop a file named "entrance.mp4" in recordings/ and this will serve it
+  # as a never-ending RTSP stream on rtsp://localhost:8554/cam_01
+  cam_01:
+    source: publisher
+    runOnReady: >
+      ffmpeg -re -stream_loop -1
+      -i /recordings/entrance.mp4
+      -c copy
+      -f rtsp rtsp://localhost:8554/cam_01
+    runOnReadyRestart: yes
+
+  # ─── Simulated Camera 2 — loops a different video ────────────────────────
+  cam_02:
+    source: publisher
+    runOnReady: >
+      ffmpeg -re -stream_loop -1
+      -i /recordings/server_room.mp4
+      -c copy
+      -f rtsp rtsp://localhost:8554/cam_02
+    runOnReadyRestart: yes
+
+  # ─── Simulated Camera 3 — loops a third video ───────────────────────────
+  cam_03:
+    source: publisher
+    runOnReady: >
+      ffmpeg -re -stream_loop -1
+      -i /recordings/parking.mp4
+      -c copy
+      -f rtsp rtsp://localhost:8554/cam_03
+    runOnReadyRestart: yes
+
+  # ─── Phone Camera (Android IP Webcam / iOS) ──────────────────────────────
+  # Uncomment and set the IP to your phone's address.
+  # The phone app must be running and streaming before MediaMTX can proxy it.
+  #
+  # phone_01:
+  #   source: rtsp://192.168.1.42:8080/h264      # Android IP Webcam
+  #   sourceProtocol: tcp
+  #
+  # phone_02:
+  #   source: rtsp://192.168.1.43:8554/live       # iOS RTSP Camera Server
+  #   sourceProtocol: tcp
+
+  # ─── Real IP Camera (proxy through MediaMTX) ─────────────────────────────
+  # Proxying through MediaMTX adds reconnect handling and transcoding options.
+  #
+  # real_cam_01:
+  #   source: rtsp://admin:password@192.168.1.100:554/stream1
+  #   sourceProtocol: tcp
+  #   sourceOnDemand: yes          # only connect when someone is watching
+
+  # ─── Catch-all: accept any push from ffmpeg / OBS / GStreamer ────────────
+  # Any stream pushed to rtsp://localhost:8554/<anything> will be accepted.
+  # Useful for ad-hoc testing.
+  all_others:
+    source: publisher
