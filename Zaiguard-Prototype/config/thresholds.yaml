@@ -14,9 +14,15 @@ thresholds:
   backbone_conf: 0.40       # minimum detection confidence to keep a box
   backbone_nms_iou: 0.45
 
+  # ── feature extractor (appearance embeddings for re-ID) ───────────────────
+  # Feature extractor model (disabled/optional for Part 2)
+  # feature_extractor_model: weights/reid.onnx
+  # appearance_embedding_dim: 128
+  # feature_extractor_input_size: [128, 256]
+
   # ── motion gate ────────────────────────────────────────────────────────────
-  motion_threshold: 1.5     # mean pixel diff — below this, frame is skipped
-  motion_sample_fps: 5      # max fps pushed from sampler → backbone
+  motion_threshold: 3.0     # mean pixel diff — filters minor lighting noise & static frames
+  motion_sample_fps: 5      # 5 FPS (200ms interval) retained for reliable event tracking
 
   # ── unauth_access ──────────────────────────────────────────────────────────
 

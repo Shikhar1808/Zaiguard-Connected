@@ -115,6 +115,10 @@ class CameraReader(threading.Thread):
                 continue
 
             self._frame_id += 1
+            # ponytail: downscale in reader saves ~85% RAM per frame; ceiling: lose sub-pixel text/tiny distant targets; upgrade: config.max_reader_width
+            if frame.shape[1] > 640:
+                frame = cv2.resize(frame, (640, int(frame.shape[0] * (640 / frame.shape[1]))), interpolation=cv2.INTER_AREA)
+
             packet = FramePacket(
                 camera_id=self.config.camera_id,
                 frame_id=self._frame_id,

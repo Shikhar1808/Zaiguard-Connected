@@ -54,6 +54,7 @@ from core.logger import log
 from core.packets import (
     SCHEMA_VERSION,
     AlertCandidate,
+    AlertEmbeddings,
     AlertMeta,
     ThresholdVerdict,
     TrackBox,
@@ -156,8 +157,27 @@ class UnauthAccessClassifier(BaseClassifier):
 
     # ── v1.3 helpers ──────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _spatial_embedding_6d(track: TrackBox) -> list[float]:
+        """6-d spatial: [cx_norm, cy_norm, w_norm, h_norm, area_ratio, aspect_ratio]."""
+        cx, cy = track.centroid_norm
+        x1, y1, x2, y2 = track.bbox_norm
+        w = round(x2 - x1, 4)
+        h = round(y2 - y1, 4)
+        area_ratio = round(w * h, 6)   # fraction of frame area occupied
+        return [cx, cy, w, h, area_ratio, track.aspect_ratio]
 
-
+    @staticmethod
+    def _temporal_embedding_4d(hour: int, dow_index: int) -> list[float]:
+        """4-d cyclical: [sin(hour), cos(hour), sin(dow), cos(dow)]."""
+        h_rad = 2 * math.pi * hour / 24.0
+        d_rad = 2 * math.pi * dow_index / 7.0
+        return [
+            round(math.sin(h_rad), 6),
+            round(math.cos(h_rad), 6),
+            round(math.sin(d_rad), 6),
+            round(math.cos(d_rad), 6),
+        ]
     @staticmethod
     def _classify_severity(
         confidence: float,
@@ -238,6 +258,13 @@ class UnauthAccessClassifier(BaseClassifier):
                 key, packet.timestamp, packet.frame_id,
             )
 
+            embeddings = AlertEmbeddings(
+                appearance_embedding=getattr(track, "appearance_embedding", []),
+                spatial_embedding=self._spatial_embedding_6d(track),
+                temporal_embedding=self._temporal_embedding_4d(hour, dow_idx),
+                trajectory_embedding=[],
+            )
+
             # v1.3: severity classification
             severity = self._classify_severity(
                 confidence=verdict.raw_score,
@@ -285,6 +312,7 @@ class UnauthAccessClassifier(BaseClassifier):
                 track_id=track.track_id,
                 confidence=round(verdict.raw_score, 4),
                 zone_id=cam_id,
+                embeddings=embeddings,
                 meta=meta,
             )
             object.__setattr__(alert, "_frame", packet.frame)

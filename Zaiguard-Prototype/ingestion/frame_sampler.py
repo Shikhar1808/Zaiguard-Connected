@@ -70,6 +70,10 @@ class FrameSampler(threading.Thread):
                 log.debug("[{}] dropped — low motion ({:.2f})", cam_id, score)
                 continue
 
+            # ponytail: adaptive drop when backbone queue >= 80% full; ceiling: skips low-motion frames under severe overload; upgrade: priority queue
+            if self.out_queue.qsize() >= int(self.out_queue.maxsize * 0.8) and score < self.thresholds.motion_threshold * 2.0:
+                continue
+
             self._last_sent[cam_id] = now
             total_out += 1
 

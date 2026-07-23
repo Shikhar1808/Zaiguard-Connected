@@ -12,7 +12,8 @@ from dataclasses import dataclass, field
 
 @dataclass
 class QueueBus:
-    maxsize: int = 32
+    # ponytail: maxsize=16 halves queue RAM while preserving burst headroom; ceiling: backpressure on multi-camera spikes; upgrade: dynamic queue limits
+    maxsize: int = 16
 
     # Camera readers  →  frame sampler
     raw_frames: queue.Queue = field(init=False)
